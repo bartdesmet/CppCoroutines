@@ -1,0 +1,1 @@
+cl main.cpp -await -EHsc
