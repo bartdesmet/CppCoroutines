@@ -8,15 +8,19 @@ template<class T>
 struct future_wrapper {
   struct promise_type {
     void return_value(T value) {
+      cout << "return_value" << endl;
       m_promise.set_value(value);
     }
     future_wrapper<T> get_return_object() {
+      cout << "get_return_object" << endl;
       return {m_promise.get_future()};
     }
     std::experimental::suspend_never initial_suspend() const {
+      cout << "initial_suspend" << endl;
       return {};
     }
     std::experimental::suspend_never final_suspend() const {
+      cout << "final_suspend" << endl;
       return {};
     }
 
