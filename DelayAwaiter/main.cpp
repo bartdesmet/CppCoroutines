@@ -8,8 +8,6 @@
 using namespace std;
 using namespace std::chrono;
 
-static vector<thread> threads; // NB: Demo leak, avoids need to call join.
-
 template<typename _Rep, typename _Period>
 struct delay {
   explicit delay(duration<_Rep, _Period> duration) : m_duration(duration) {}
@@ -17,12 +15,13 @@ struct delay {
   bool await_ready() const { return false; }
   void await_suspend(std::experimental::coroutine_handle<> h) const {
     cout << "suspend0" << endl;
-    threads.push_back(thread([=](){
+    auto t = thread([=](){
       cout << "~" << this_thread::get_id() << " before sleep " << endl;
       this_thread::sleep_for(m_duration);
       cout << "~" << this_thread::get_id() << " after sleep " << endl;
       h.resume();
-    }));
+    });
+    t.detach();
     cout << "suspend1" << endl;
   }
   void await_resume() const {
@@ -54,8 +53,4 @@ int main() {
   cout << "main1" << endl;
   t.wait();
   cout << "main2" << endl;
-
-  for (auto& thread : threads){
-    thread.join();
-  }
 }
